@@ -1,0 +1,14 @@
+# environments/dev/terraform.tfvars.example
+# Copy to terraform.tfvars and adjust. All values have sensible defaults.
+
+region = "eu-central-1"
+
+tags = {
+  environment = "develop"
+  product     = "cloud"
+  service     = "pipeline"
+}
+
+alarm_email               = "cloud-ops@example.com"
+jenkins_allowed_countries = ["PT"]
+daily_cost_threshold_usd  = 1

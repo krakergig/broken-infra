@@ -1,0 +1,22 @@
+#!/bin/bash
+# ecs_user_data.sh.tftpl
+# EC2 container-host bootstrap, rendered by Terraform's templatefile().
+# Template variables (Terraform-injected):  ${cluster_name}, ${mount_data_volume}, ${device_name}
+# Shell variables use $VAR (no braces) so they don't collide with template interpolation.
+
+# Register this instance with the correct ECS cluster (required for ECS-on-EC2).
+echo "ECS_CLUSTER=${cluster_name}" >> /etc/ecs/ecs.config
+
+%{ if mount_data_volume ~}
+# Format (first boot only) and mount the extra data volume at /data. On Nitro
+# instances (t3) the mapped device surfaces as an NVMe device, so detect the block
+# device rather than assuming the ${device_name} name.
+for DATA_DEV in /dev/nvme1n1 ${device_name}; do
+  [ -b "$DATA_DEV" ] || continue
+  blkid "$DATA_DEV" >/dev/null 2>&1 || mkfs -t xfs "$DATA_DEV"
+  mkdir -p /data
+  mount "$DATA_DEV" /data
+  grep -q " /data " /etc/fstab || echo "$DATA_DEV /data xfs defaults,nofail 0 2" >> /etc/fstab
+  break
+done
+%{ endif ~}

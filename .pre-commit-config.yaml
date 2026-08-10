@@ -1,0 +1,46 @@
+# .pre-commit-config.yaml
+# Pre-commit hooks required by the challenge (requirement #11). Install with:
+#   pip install pre-commit && pre-commit install
+# Run against everything with:
+#   pre-commit run --all-files
+
+repos:
+  # Generic hygiene checks (YAML syntax, trailing whitespace, EOF, large files).
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: check-yaml
+      - id: check-json
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: check-merge-conflict
+      - id: check-added-large-files
+        args: ["--maxkb=512"]
+
+  # Terraform format / validate / docs / lint.
+  - repo: https://github.com/antonbabenko/pre-commit-terraform
+    rev: v1.92.0
+    hooks:
+      - id: terraform_fmt
+      - id: terraform_validate
+      - id: terraform_tflint
+        args:
+          - "--args=--only=terraform_deprecated_interpolation"
+          - "--args=--only=terraform_unused_declarations"
+
+  # Security / compliance scanning of the IaC.
+  - repo: https://github.com/bridgecrewio/checkov
+    rev: 3.2.257
+    hooks:
+      - id: checkov
+        args: ["--directory", "terraform", "--quiet", "--compact"]
+
+  # Credential detection against the committed baseline. Transcrypt-encrypted files are
+  # high-entropy ciphertext, so exclude those paths to avoid false positives (they are
+  # deliberately encrypted secrets, managed via .gitattributes).
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.5.0
+    hooks:
+      - id: detect-secrets
+        args: ["--baseline", ".secrets.baseline"]
+        exclude: '^(secrets/.*|.*\.enc)$'

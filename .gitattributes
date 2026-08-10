@@ -1,0 +1,9 @@
+# .gitattributes
+# Transcrypt configuration (challenge requirement #11): files matching these patterns
+# are transparently encrypted at rest in git via Transcrypt's `crypt` filter.
+# Initialise once per clone with:
+#   transcrypt -c aes-256-cbc -p '<shared-passphrase>'
+# After that, anything under secrets/ (or *.enc) is encrypted on commit and decrypted
+# in the working tree. Never commit decrypted copies (see .gitignore: *.decrypted).
+secrets/** filter=crypt diff=crypt merge=crypt
+*.enc      filter=crypt diff=crypt merge=crypt

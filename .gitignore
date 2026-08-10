@@ -1,0 +1,29 @@
+# .gitignore
+
+# Terraform
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+crash.log
+crash.*.log
+*.tfvars
+!*.tfvars.example
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraformrc
+terraform.rc
+# NOTE: .terraform.lock.hcl is intentionally committed for reproducible peer review.
+
+# Transcrypt-managed secrets stay encrypted; never commit decrypted copies.
+*.decrypted
+
+# Local pipeline artifacts
+docker-*.log
+
+# OS / editor
+.DS_Store
+*.swp
+.idea/
+.vscode/
